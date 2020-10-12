@@ -19,7 +19,7 @@ export class Training {
     return new Training(
       'Videos dos Exercícios',
       require('../assets/image-training-2.jpg'),
-      () => navigation && navigation.navigate('ExerciseVideos')
+      () => navigation && navigation.navigate('TrainingCategoryList')
     );
   }
 

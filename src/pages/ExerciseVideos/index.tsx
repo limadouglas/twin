@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Alert, ListRenderItemInfo, Modal, Platform, ScrollView, View } from 'react-native';
 import { Button, Icon, Input, Layout, Menu, MenuGroup, MenuItem, StyleService, useStyleSheet } from '@ui-kitten/components';
 import { ItemComponent } from './extra/item.component';
@@ -7,21 +7,37 @@ import ExerciseVideoList, {ExerciseVideoListProps} from '../../constants/Exercis
 import { Linking } from 'react-native';
 import WebView from 'react-native-webview';
 //import { VideoModal } from 'src/components/video-modal.component';
+import YouTube from 'react-native-youtube';
+import { ItemList } from '../../components/Item-list.component';
 
-export default ({ navigation }): React.ReactElement => {
+export default ({ route, navigation }): React.ReactElement => {
 
   const styles = useStyleSheet(themedStyles);
-  const [searchQuery, setSearchQuery] = React.useState<string>();
-  const [exerciseList, setExerciseList] = React.useState<ExerciseVideoListProps[]>([]);
-  const [showVideo, setShowVideo] = React.useState<boolean>(false);
-  const [urlVideo, setUrlVideo] = React.useState<string>('');
+
+  const [search, setSearch] = useState('');
+  const [categoryName, setCategoryName] = useState<string>(route.params.categoryName);
+  const [exerciseList, setExerciseList] = useState<any>();
+  const [showVideo, setShowVideo] = useState<boolean>(false);
+  const [urlVideo, setUrlVideo] = useState<string>('');
+
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
+
+  const scrollRef = useRef();
 
   useEffect(() => {
-    setExerciseList(ExerciseVideoList)
+    console.log('olaa', categoryName);
+    const categoryVideos:ExerciseVideoListProps = ExerciseVideoList.filter(category => category.categoryName === categoryName)
+    console.log('categoryVideos', categoryVideos)
+    setExerciseList(categoryVideos[0].exerciseList)
+    setFilteredDataSource(categoryVideos[0].exerciseList)
   }, [ExerciseVideoList])
 
   const handlePress = useCallback(async (url) => {
     // const supported = await Linking.canOpenURL(url);
+    scrollRef.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
     setUrlVideo(url)
     setShowVideo(true)
     // if (supported) {
@@ -30,6 +46,29 @@ export default ({ navigation }): React.ReactElement => {
     //   Alert.alert(`Don't know how to open this URL: ${url}`);
     // }
   }, []);
+
+  const searchFilterFunction = (text) => {
+    // Check if searched text is not blank
+    if (text) {
+        // Inserted text is not blank
+        // Filter the masterDataSource and update FilteredDataSource
+        const newData = exerciseList.filter(function (item) {
+        // Applying filter for the inserted text in search bar
+        const itemData = item.name
+            ? item.name.toUpperCase()
+            : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+        });
+        setFilteredDataSource(newData);
+        setSearch(text);
+    } else {
+        // Inserted text is blank
+        // Update FilteredDataSource with masterDataSource
+        setFilteredDataSource(exerciseList);
+        setSearch(text);
+    }
+  };
 
   const CloseIcon = (props) => (
     <Icon {...props} name='close-circle-outline'/>
@@ -46,36 +85,15 @@ export default ({ navigation }): React.ReactElement => {
   );
 
   const renderVideo = () => (
-    <>
-      <Modal
-      transparent={true}
-      visible={showVideo}
-      onRequestClose={() => setShowVideo(false) }>
-        <View
-        style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          flex: 1,
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <View style={{
-            minWidth: '100%',
-            minHeight: 500,
-          }}>
-            <WebView
-              allowsFullscreenVideo={true}
-              style={{ flex:1, marginTop: (Platform.OS == 'ios') ? 20 : 0,}}
-              javaScriptEnabled={true}
-              domStorageEnabled={true}
-              source={{uri: urlVideo}}//+this.state.pictureData.idVideo }}
-              //'https://www.youtube.com/embed/Z43Ji7H2Xnw'
-            />
-            <Button style={{margin:2}} appearance='ghost' accessoryLeft={CloseIcon} onPress={() => setShowVideo(false)} />
-          </View>
-        </View>
-      </Modal>
-    </>
+    <YouTube
+      apiKey='AIzaSyAoZaj-hsrtgwl-h2PwFMnRTlA91Q-3RQg'
+      videoId={urlVideo} // The YouTube video ID
+      play // control playback of video with true/false
+      //fullscreen // control whether the video should play in fullscreen or inline
+      loop // control whether the video should loop when ended
+      onError={(e)=>{console.log(e)}}
+      style={{ alignSelf: 'stretch', height: 300 }}
+    />
   )
 
   const renderHeader = (): React.ReactElement => (
@@ -84,52 +102,54 @@ export default ({ navigation }): React.ReactElement => {
       level='1'>
       <Input
         placeholder='Search'
-        value={searchQuery}
+        value={search}
+        onChangeText={(text) => searchFilterFunction(text)}
         // accessoryRight={SearchIcon}
       />
     </Layout>
   );
 
-  const openMenu = (indexItem: number) => {
-    console.log('ok')
-    //setShowVideo(true)
-    //const item  = exerciseList[index]
-    //item.isRender = true
-    // if(showItens.indexOf(indexItem) < 0)
-    //   setShowItens([indexItem])
-  }
-
   return (
     <>
-      {renderHeader()}
-      {renderVideo()}
-      <Menu
-      style={{ flex:1}}
-        // selectedIndex={selectedIndex}
-        //onSelect={index => setSelectedIndex(index)}
-        >
-        {
-          exerciseList.map((item, index) => {
-            return (<MenuGroup
-              key={item.categoryName}
-              title={item.categoryName}
-              onPressOut={()=>openMenu(index)}>
-              {
-                item.exerciseList.map((exercise, index) => (
-                    <MenuItem key={'exercise'+index} onPress={()=>handlePress(exercise.link)} title={exercise.name} accessoryLeft={StarIcon} />
-                  ))
-              }
-            </MenuGroup>
-          )})
-        }
-      </Menu>
+      { renderHeader() }
+      <ScrollView ref={scrollRef}>
+
+          { showVideo && renderVideo() }
+          {
+
+            !!filteredDataSource &&
+              (filteredDataSource.map(exercise=>(
+                <ItemList
+                  key={exercise.name}
+                  style={styles.itemList}
+                  hint={exercise.name}
+                  onPress={ () => handlePress(exercise.link)}
+                />
+              )))
+              // (<MenuGroup
+              //   key={exerciseList.categoryName}
+              //   title={exerciseList.categoryName}>
+              //   {
+              //     exerciseList.exerciseList.map((exercise, index) => (
+              //       <MenuItem key={'exercise'+index} onPress={ () => handlePress(exercise.link)} title={exercise.name} accessoryLeft={StarIcon} />
+              //     ))
+              //   }
+              // </MenuGroup>)
+          }
+      </ScrollView>
     </>
-);
+  );
 };
 
 const themedStyles = StyleService.create({
   list: {
     flex: 1,
+  },
+  listContent: {
+    padding: 16,
+  },
+  itemList:{
+    padding: 16,
   },
   header: {
     paddingHorizontal: 16,
