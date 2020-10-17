@@ -43,7 +43,7 @@ export class ExerciseCategoryList {
     return new ExerciseCategoryList(
       'Tríceps',
       require('../assets/image-training-1.jpg'),
-      () => navigation && navigation.navigate('ExerciseVideos', {categoryName: 'Triceps'})
+      () => navigation && navigation.navigate('ExerciseVideos', {categoryName: 'Tríceps'})
     );
   }
 
