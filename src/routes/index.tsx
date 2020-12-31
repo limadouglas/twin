@@ -13,6 +13,7 @@ import { IconTraining, IconFood, IconQuestion, IconMore, IconOption } from './me
 const {Navigator, Screen} = createMaterialTopTabNavigator();
 import { Tab, TabBar } from '@ui-kitten/components';
 import { TrainingNavigator } from './navigation/training';
+import { Platform } from 'react-native';
 
 const OptionTabBar = ({ navigation, state }): React.ReactElement => {
 
@@ -25,6 +26,7 @@ const OptionTabBar = ({ navigation, state }): React.ReactElement => {
       key={route}
       title={IconOption[route].name}
       icon={IconOption[route].icon}
+      style={[{marginBottom: Platform.OS === 'ios'? 10: 0}]}
     />
   )};
 
@@ -38,7 +40,7 @@ const OptionTabBar = ({ navigation, state }): React.ReactElement => {
 };
 
 const AppRoutes: React.FC = () => (
-  <Navigator tabBarPosition='bottom' tabBar={(props) => <OptionTabBar {...props} />}>
+  <Navigator style={[{marginTop: Platform.OS==='ios'? 50: 0, justifyContent: 'center'}]} tabBarPosition='bottom' tabBar={(props) => <OptionTabBar {...props} />}>
     <Screen name="Training" component={TrainingNavigator} />
     <Screen name="Food"component={Food} />
     <Screen name="Question"component={Question} />

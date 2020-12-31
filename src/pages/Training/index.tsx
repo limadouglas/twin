@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   verticalItem: {
     marginVertical: 8,
-    marginHorizontal: 16,
+    marginHorizontal: 16
   },
   horizontalItem: {
     width: 256,

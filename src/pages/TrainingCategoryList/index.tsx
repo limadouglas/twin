@@ -4,8 +4,6 @@ import { List } from '@ui-kitten/components';
 import { ItemMenuCard } from '../../components/item-menu-card.component';
 import { ExerciseCategoryList } from './extra/data';
 
-
-
 export const TrainingCategoryList = ({ route, navigation }): React.ReactElement => {
   const exercises: ExerciseCategoryList[] = [
     ExerciseCategoryList.Peitoral(navigation),
@@ -41,7 +39,7 @@ export const TrainingCategoryList = ({ route, navigation }): React.ReactElement 
 
 const styles = StyleSheet.create({
   list: {
-    paddingVertical: 24,
+    paddingVertical: 24
   },
   headerTitle: {
     marginHorizontal: 16,

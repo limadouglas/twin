@@ -12,9 +12,9 @@ const { Navigator, Screen } = createStackNavigator();
 export const TrainingNavigator = (): React.ReactElement => (
   <Navigator>
     <Screen options={{headerShown: false}} name="TrainingsListScreen" component={TrainingsListScreen} />
-    <Screen name="MyTraining" options={{title: 'Meu Treino'}} component={MyTraining} />
-    <Screen name="TrainingCategoryList" options={{title: 'Grupos Musculares'}} component={TrainingCategoryList} />
-    <Screen name="ExerciseVideos" options={{title: 'Videos dos Exercícios'}} component={ExerciseVideos} />
-    <Screen name="EmergencyExchanges" options={{title: 'Trocas Emergenciais'}} component={EmergencyExchanges} />
+    <Screen name="MyTraining" options={{title: 'Meu Treino', headerBackTitle:'Voltar'}} component={MyTraining} />
+    <Screen name="TrainingCategoryList" options={{title: 'Grupos Musculares', headerBackTitle:'Voltar'}} component={TrainingCategoryList} />
+    <Screen name="ExerciseVideos" options={{title: 'Videos dos Exercícios', headerBackTitle:'Voltar'}} component={ExerciseVideos} />
+    <Screen name="EmergencyExchanges" options={{title: 'Trocas Emergenciais', headerBackTitle:'Voltar'}} component={EmergencyExchanges} />
   </Navigator>
 );
