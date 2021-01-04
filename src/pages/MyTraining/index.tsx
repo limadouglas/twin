@@ -213,7 +213,7 @@ const MyTraining: React.FC = () => {
             trainings && trainings[selectedWeek] &&
             trainings[selectedWeek].exercises.map((exercise:any, index:number) => (
               <CardTrainingContainer key={index} onPress={()=>handlePress(exercise.name)}>
-                <CardTrainingName>{exercise.name}</CardTrainingName>
+                <CardTrainingName>{exercise.name}{exercise.technique? ' ('+exercise.technique+')': ''}</CardTrainingName>
                 <CardTrainingDetails>
                   <CardTrainingDetailsQtde>{exercise.series}</CardTrainingDetailsQtde>
                   <CardTrainingDetailsName>Séries</CardTrainingDetailsName>
@@ -225,9 +225,12 @@ const MyTraining: React.FC = () => {
               </CardTrainingContainer>
             ))
           }
-          <Text>
-            {/* {trainings[selectedWeek].timeInterval} */}
-          </Text>
+          {
+            trainings && trainings[selectedWeek] &&
+              <Text style={[{textAlign: "center", margin:30, fontWeight: "bold"}]}>
+                {trainings[selectedWeek].timeInterval}
+              </Text>
+          }
         </ScrollView>
     </Container>)
 }
