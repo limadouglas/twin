@@ -101,7 +101,7 @@ export default ({ route, navigation }): React.ReactElement => {
       style={styles.header}
       level='1'>
       <Input
-        placeholder='Search'
+        placeholder='Pesquisar'
         value={search}
         onChangeText={(text) => searchFilterFunction(text)}
         // accessoryRight={SearchIcon}

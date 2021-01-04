@@ -1,35 +1,79 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useRef} from 'react'
 import { Alert, Button, PermissionsAndroid, Text, View} from 'react-native';
 import XLSX from 'xlsx';
 import { readFile, DownloadDirectoryPath } from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
-import { WeekContainer, WeekList, WeekListContainer, WeekName, WeekProps } from './styles';
+import { WeekContainer, WeekList, WeekListContainer, WeekName, WeekProps, CardTrainingContainer, CardTrainingName, CardTrainingDetails, CardTrainingDetailsQtde, CardTrainingDetailsName, Container
+} from './styles';
 import { ScrollView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
+import { VideoYoutube } from '../../components/video-youtube.component';
+import ExerciseVideoList from '../../constants/ExerciseVideosList';
 
 
 const MyTraining: React.FC = () => {
+  const [showVideo, setShowVideo] = useState<boolean>(false);
+  const [urlVideo, setUrlVideo] = useState<string>('');
+
   const [singleFile, setSingleFile] = useState('');
   const [trainings, setTrainings] = useState<any>();
   const [selectedWeek, setSelectedWeek] = useState(0);
   const [weeks, setWeeks] = useState<WeekProps[]>([{name: 'segunda', id:0}, {name: 'terça', id:1}, {name: 'quarta', id:2}, {name: 'quinta', id:3}, {name: 'sexta', id:4}, {name: 'sabado', id:5}, {name: 'domingo', id:6} ])
+  const scrollRef = useRef();
 
   const input = (res: any) => res;
 
   useEffect(() => {
     readFileXls();
+
   }, [singleFile])
 
   useEffect(() => {
     async function loadTrainings(): Promise<void> {
       const storageTrainings = await AsyncStorage.getItem('@Twin:trainings')
-      //console.log('storageGet', storageTrainings)
       storageTrainings && setTrainings(JSON.parse(storageTrainings))
     }
     loadTrainings()
   }, [])
 
-  const handleSelectWeek = useCallback((week:number)=>{
+  const handlePress = useCallback(async (title:string) => {
+    scrollRef.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+    const list:any[] = ExerciseVideoList.map(({exerciseList})=> exerciseList)
+    const listConcat = list.reduce((total, arr)=>arr.concat(total),[])
+    let exerciseSelected = listConcat.find(({name})=> name === title)
+    console.log('exerciseSelected', exerciseSelected)
+    if(!exerciseSelected){
+      const titleSplit = title.split('+')
+      const titleFist = titleSplit[0].trim()
+      const titleLast = titleSplit[1].trim()
+      const linkFist = listConcat.find(({name})=> name === titleFist)
+      const linkLast = listConcat.find(({name})=> name === titleLast)
+
+      Alert.alert('Qual exercicio deseja ver o video?', '', [
+        {
+          text: titleFist,
+          onPress: () => {
+            setUrlVideo(linkFist.link);
+            setShowVideo(true);
+          }
+        },
+        {
+          text: titleLast,
+          onPress: () =>{
+            setUrlVideo(linkLast.link);
+            setShowVideo(true);
+          }
+        },
+      ])
+    }
+    setUrlVideo(exerciseSelected.link);
+    setShowVideo(true);
+  }, []);
+
+  const handleSelectWeek = useCallback((week:number) => {
     setSelectedWeek(week)
   }, [setSelectedWeek])
 
@@ -71,8 +115,6 @@ const MyTraining: React.FC = () => {
         const trainingF:any = getTrainingRange('J19', 'L34', ws)
         setTrainings([trainingA, trainingB, trainingC, trainingD, trainingE, trainingF].filter(Boolean));
         await AsyncStorage.setItem('@Twin:trainings', JSON.stringify([trainingA, trainingB, trainingC, trainingD, trainingE, trainingF].filter(Boolean)));
-        // console.log('training:', trainingA, trainingB, trainingC, trainingD, trainingE, trainingF)
-        console.log('pasouu', trainings);
       });
   }
 
@@ -150,9 +192,10 @@ const MyTraining: React.FC = () => {
   }
 
   return (
-    <View>
-        <ScrollView>
+    <Container>
+        <ScrollView ref={scrollRef}>
           <Button title='importar/atualizar' onPress={importFile} />
+          <VideoYoutube showVideo={showVideo} urlVideo={urlVideo} />
           <WeekListContainer>
             <WeekList
               horizontal
@@ -166,26 +209,27 @@ const MyTraining: React.FC = () => {
               )}
             />
           </WeekListContainer>
-
           {
             trainings && trainings[selectedWeek] &&
-                <View style={[{marginBottom:40, marginLeft:25}]}>
-                  <Text style={[{fontWeight: "bold", marginTop:10}]}>
-                    {`${trainings[selectedWeek].id} - ${trainings[selectedWeek].name}`}
-                  </Text>
-                  {trainings[selectedWeek].exercises.map((exercise:any, index:number) => (
-                    <Text key={index}>
-                      {`${exercise.name} - (${exercise.series} x ${exercise.repetition}) ${exercise.technique? ('- '+ exercise.technique):''}`}
-                    </Text>
-                  ))}
-                  <Text>
-                      {trainings[selectedWeek].timeInterval}
-                  </Text>
-                </View>
-
+            trainings[selectedWeek].exercises.map((exercise:any, index:number) => (
+              <CardTrainingContainer key={index} onPress={()=>handlePress(exercise.name)}>
+                <CardTrainingName>{exercise.name}</CardTrainingName>
+                <CardTrainingDetails>
+                  <CardTrainingDetailsQtde>{exercise.series}</CardTrainingDetailsQtde>
+                  <CardTrainingDetailsName>Séries</CardTrainingDetailsName>
+                </CardTrainingDetails>
+                <CardTrainingDetails>
+                  <CardTrainingDetailsQtde>{exercise.repetition}</CardTrainingDetailsQtde>
+                  <CardTrainingDetailsName>Repetições</CardTrainingDetailsName>
+                </CardTrainingDetails>
+              </CardTrainingContainer>
+            ))
           }
+          <Text>
+            {/* {trainings[selectedWeek].timeInterval} */}
+          </Text>
         </ScrollView>
-    </View>)
+    </Container>)
 }
 
 export default MyTraining;

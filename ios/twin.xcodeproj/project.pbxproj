@@ -161,7 +161,6 @@
 				AAE27E41E337C63691F06625 /* Pods-twin-twinTests.debug.xcconfig */,
 				6A262AAB9DDDD152F0E72C7B /* Pods-twin-twinTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
