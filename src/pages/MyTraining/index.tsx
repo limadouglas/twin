@@ -129,7 +129,7 @@ const MyTraining: React.FC = () => {
       for (let C = range.s.c; C <= range.e.c; ++C) {
         let cell_address = { c: C, r: R };
         let data = XLSX.utils.encode_cell(cell_address);
-        dataRange.push(ws[data]?.v);
+        dataRange.push(ws[data]?.v.trim());
       }
     }
     console.log('ainda nao chamou', dataRange)
