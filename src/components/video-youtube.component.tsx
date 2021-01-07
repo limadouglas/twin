@@ -13,12 +13,13 @@ export const VideoYoutube=({showVideo=false, urlVideo=''}: VideoProps): React.Re
       showVideo && urlVideo
       ? <YouTube
           apiKey='AIzaSyAoZaj-hsrtgwl-h2PwFMnRTlA91Q-3RQg'
+          resumePlayAndroid={false}
           videoId={urlVideo} // The YouTube video ID
-          play // control playback of video with true/false
-          //fullscreen // control whether the video should play in fullscreen or inline
+          play// control playback of video with true/false
           loop // control whether the video should loop when ended
           onError={(e)=>{console.log(e)}}
-          style={{ alignSelf: 'stretch', height: 300 }} />
+          style={{ alignSelf: 'stretch', height: 300 }}
+          />
       : <View></View>
   );
 };

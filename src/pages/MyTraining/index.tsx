@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef} from 'react'
-import { Alert, Button, PermissionsAndroid, Text, View} from 'react-native';
+import { Alert, Button, PermissionsAndroid, Text} from 'react-native';
 import XLSX from 'xlsx';
-import { readFile, DownloadDirectoryPath } from 'react-native-fs';
+import { readFile } from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import { WeekContainer, WeekList, WeekListContainer, WeekName, WeekProps, CardTrainingContainer, CardTrainingName, CardTrainingDetails, CardTrainingDetailsQtde, CardTrainingDetailsName, Container
 } from './styles';
@@ -25,7 +25,6 @@ const MyTraining: React.FC = () => {
 
   useEffect(() => {
     readFileXls();
-
   }, [singleFile])
 
   useEffect(() => {
@@ -55,16 +54,18 @@ const MyTraining: React.FC = () => {
       Alert.alert('Qual exercicio deseja ver o video?', '', [
         {
           text: titleFist,
-          onPress: () => {
+          onPress: async() => {
             setUrlVideo(linkFist.link);
             setShowVideo(true);
+
           }
         },
         {
           text: titleLast,
-          onPress: () =>{
+          onPress: async() =>{
             setUrlVideo(linkLast.link);
             setShowVideo(true);
+
           }
         },
       ])
